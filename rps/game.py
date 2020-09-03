@@ -15,24 +15,64 @@ option = {'rock': {'rock': 'Draw',
                        'scissors': 'Draw'}
           }
 
-user_option = input()
 
+def read_ratings(player_name):
+    ratings_file = open('rating.txt', 'r')
+    ratings_dict = {}
 
-while True:
-    if user_option != '!exit' and user_option not in list(option):
-        print('Invalid input')
-        user_option = input()
-    elif user_option == "!exit":
-        print("Bye")
-        break
+    for line in ratings_file:
+        name, rating = line.split()
+        ratings_dict[name] = int(rating)
+
+    if player_name in ratings_dict:
+        ratings_file.close()
+        return ratings_dict[player_name]
     else:
-        comp_option, output = random.choice(list(option[user_option].items()))
+        ratings_file.close()
+        return 0
 
-        outcome = {'Lose': f'Sorry, but the computer chose {comp_option}',
-                   'Draw': 'There is a draw ({})'.format(comp_option),
-                   'Win': 'Well done. The computer chose {} and failed'.format(comp_option)
-                   }
 
-        print(outcome[output])
+def greet_player(name):
+    print(f'Hello, {name}')
 
-        user_option = input()
+
+def game():
+    #  Greet user and get previous score, if available
+    user_name = input('Enter your name: ')
+    greet_player(user_name)
+    rating = read_ratings(user_name)
+
+    user_option = input()
+
+    while True:
+        if user_option != '!exit' and user_option != '!rating' and user_option not in list(option):
+            print('Invalid input')
+            user_option = input()
+        elif user_option == "!exit":
+            print("Bye")
+            break
+        else:
+            if user_option == '!rating':
+                print(f'Your rating: {rating}')
+            else:
+                comp_option, output = random.choice(list(option[user_option].items()))
+
+                outcome = {'Lose': {'result': f'Sorry, but the computer chose {comp_option}',
+                                    'points': 0},
+                           'Draw': {'result': 'There is a draw ({})'.format(comp_option),
+                                    'points': 50},
+                           'Win': {'result': 'Well done. The computer chose {} and failed'.format(comp_option),
+                                   'points': 100}
+                           }
+
+                game_result = outcome[output].get('result')
+                game_points = outcome[output].get('points')
+
+                print(game_result)
+
+                rating += game_points
+
+            user_option = input()
+
+
+game()
